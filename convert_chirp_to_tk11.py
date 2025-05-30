@@ -2,7 +2,7 @@
 # https://www.youtube.com/@NikosKantarakias
 # https://www.qrz.com/db/SY1EBE
 #
-# version 0.0.1
+# version 0.0.3
 #
 # This code are licensed under the GNU General Public License v3 (GPLv3).
 # 
@@ -112,10 +112,11 @@ def get_tone_settings(tone, rtonefreq, ctonefreq, dtcs_code, rx_dtcs_code, dtcs_
 def is_empty_row(row, fieldnames):
     return all(not row.get(field, "").strip() for field in fieldnames if field != "Location")
 
-# Read CHIRP.csv and collect Location values
+# Read CHIRP.csv and collect rows with Location
 output_rows = []
-locations = set()
-max_location = 0
+location_rows = {}  # Map Location to row
+min_location = float('inf')
+max_location = -1
 fieldnames = None
 with open(input_file, newline='') as csvfile:
     reader = csv.DictReader(csvfile)
@@ -125,82 +126,86 @@ with open(input_file, newline='') as csvfile:
         if location:
             try:
                 loc_num = int(location)
-                locations.add(loc_num)
+                location_rows[loc_num] = row
+                min_location = min(min_location, loc_num)
                 max_location = max(max_location, loc_num)
             except ValueError:
                 print(f"Warning: Invalid Location value '{location}' skipped.")
-                continue
 
-        # Check if row is empty (excluding Location)
-        if is_empty_row(row, fieldnames):
-            output_rows.append({"No.": location, "raw": f"{location},,,,,,,,,,,,,,,,,,,"})
-            continue
+# Generate output rows for all locations from min to max
+row_number = 1  # Start numbering from 1
+for loc in range(min_location, max_location + 1):
+    if loc not in location_rows:
+        # Add empty row for missing Location
+        output_rows.append({"No.": str(row_number), "raw": f"{row_number},,,,,,,,,,,,,,,,,,,"})
+        row_number += 1
+        continue
 
-        # Extract fields for non-empty row
-        name = row.get("Name", "")
-        frequency = row.get("Frequency", "0.0")
-        duplex = row.get("Duplex", "")
-        offset = row.get("Offset", "0.0")
-        tone = row.get("Tone", "")
-        rtonefreq = row.get("rToneFreq", "")
-        ctonefreq = row.get("cToneFreq", "")
-        dtcs_code = row.get("DtcsCode", "")
-        rx_dtcs_code = row.get("RxDtcsCode", "")
-        dtcs_polarity = row.get("DtcsPolarity", "NN")
-        cross_mode = row.get("CrossMode", "")
-        mode = row.get("Mode", "FM")
+    # Process existing row
+    row = location_rows[loc]
+    if is_empty_row(row, fieldnames):
+        output_rows.append({"No.": str(row_number), "raw": f"{row_number},,,,,,,,,,,,,,,,,,,"})
+        row_number += 1
+        continue
 
-        # Transform No.
-        no = location
+    # Extract fields for non-empty row
+    name = row.get("Name", "")
+    frequency = row.get("Frequency", "0.0")
+    duplex = row.get("Duplex", "")
+    offset = row.get("Offset", "0.0")
+    tone = row.get("Tone", "")
+    rtonefreq = row.get("rToneFreq", "")
+    ctonefreq = row.get("cToneFreq", "")
+    dtcs_code = row.get("DtcsCode", "")
+    rx_dtcs_code = row.get("RxDtcsCode", "")
+    dtcs_polarity = row.get("DtcsPolarity", "NN")
+    cross_mode = row.get("CrossMode", "")
+    mode = row.get("Mode", "FM")
 
-        # Calculate RX and TX frequencies
-        rx_freq = f"{float(frequency):.5f}" if frequency else "0.0"
-        tx_freq = calculate_tx_freq(frequency, duplex, offset)
+    # Assign sequential No.
+    no = str(row_number)
 
-        # Determine Demode
-        valid_modes = {"FM", "AM", "LSB", "USB", "CW"}
-        demode = mode if mode in valid_modes else "FM"
+    # Calculate RX and TX frequencies
+    rx_freq = f"{float(frequency):.5f}" if frequency else "0.0"
+    tx_freq = calculate_tx_freq(frequency, duplex, offset)
 
-        # Determine Band
-        band = get_band(mode)
+    # Determine Demode
+    valid_modes = {"FM", "AM", "LSB", "USB", "CW"}
+    demode = mode if mode in valid_modes else "FM"
 
-        # Determine tone settings
-        qt_encode_type, qt_encode1, qt_decode_type, qt_decode = get_tone_settings(
-            tone, rtonefreq, ctonefreq, dtcs_code, rx_dtcs_code, dtcs_polarity, cross_mode
-        )
+    # Determine Band
+    band = get_band(mode)
 
-        # Create TK11 row
-        tk11_row = {
-            "No.": no,
-            "Name": name,
-            "RX Freq[MHZ]": rx_freq,
-            "TX Freq[MHZ]": tx_freq,
-            "QT Encode Type": qt_encode_type,
-            "QT Encode1": qt_encode1,
-            "QT Decode Type": qt_decode_type,
-            "QT Decode": qt_decode,
-            "MSW": "2K",
-            "Band": band,
-            "Powrer": "Middle",
-            "Busy Lock": "OFF",
-            "ScanList": "1",
-            "Demode": demode,
-            "Freq Reverse": "OFF",
-            "SQ": "3",
-            "Encrypt": "OFF",
-            "Signaling Decode": "OFF",
-            "PTTID": "OFF",
-            "Signal": "DTMF"
-        }
-        output_rows.append(tk11_row)
+    # Determine tone settings
+    qt_encode_type, qt_encode1, qt_decode_type, qt_decode = get_tone_settings(
+        tone, rtonefreq, ctonefreq, dtcs_code, rx_dtcs_code, dtcs_polarity, cross_mode
+    )
 
-# Add empty rows for missing Location values
-for loc in range(1, max_location + 1):
-    if loc not in locations:
-        output_rows.append({"No.": str(loc), "raw": f"{loc},,,,,,,,,,,,,,,,,,,"})
-
-# Sort output rows by No. (Location)
-output_rows.sort(key=lambda x: int(x["No."]) if x["No."].strip() else 0)
+    # Create TK11 row
+    tk11_row = {
+        "No.": no,
+        "Name": name,
+        "RX Freq[MHZ]": rx_freq,
+        "TX Freq[MHZ]": tx_freq,
+        "QT Encode Type": qt_encode_type,
+        "QT Encode1": qt_encode1,
+        "QT Decode Type": qt_decode_type,
+        "QT Decode": qt_decode,
+        "MSW": "2K",
+        "Band": band,
+        "Powrer": "Middle",
+        "Busy Lock": "OFF",
+        "ScanList": "1",
+        "Demode": demode,
+        "Freq Reverse": "OFF",
+        "SQ": "3",
+        "Encrypt": "OFF",
+        "Signaling Decode": "OFF",
+        "PTTID": "OFF",
+        "Signal": "DTMF"
+    }
+    output_rows.append(tk11_row)
+    row_number += 1
 
 # Write to TK11.csv
 with open(output_file, 'w', newline='') as csvfile:
