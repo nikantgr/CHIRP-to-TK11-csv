@@ -12,7 +12,7 @@
 ##
 ### USAGE
 - Python needed to be installed in the system
-- Place the script in a directory also containing your CHIRP export csv file named inCHIRP.csv
+- Place the script in a directory also containing your CHIRP export csv file named "inCHIRP.csv"
 - from command in the said directory run
 <pre>python convert_chirp_to_tk11.py</pre>
 
