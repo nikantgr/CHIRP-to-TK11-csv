@@ -3,6 +3,7 @@
 > **⚠️❗☠️  EXPERIMENTAL PLAYGROUND 
 >Your warranty is now void. I am not responsible for bricked devices, dead radios, thermonuclear war. YOU are choosing to make these modifications, and if you point the finger at me for messing up your device, I will laugh at you. ☠️❗⚠️**
 >
+### If this script doesn't work for you and importing to TK11 CPS gives you an error the problem is with regioanl settings of the OS. This script will work for most European countries. 🇪🇺
 ##
 ### LICENSE: Please refer to LICENSE.md
 ### GNU General Public License v3: https://www.gnu.org/licenses/gpl-3.0.en.html
