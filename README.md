@@ -11,7 +11,7 @@
 > This script is written for converting CHIRP csv export files to Quansheng TK11 import csv files for Quansheng's CPS version 2.6 and above. CAUTION IS ADVISED. CHECK AND RE-CHECK YOUR FREQUENCIES AFTER CONVERSION AND ALL ADDITIONAL SETTINGS
 ##
 ### USAGE
-- The script produces three output files to try to overcome locale and regional problems in CSV files. Try the "outTK11-commadelim.csv" file first, then the others
+- The script produces three output files to try to overcome locale and regional problems in CSV files. Try the "outTK11-locale.csv" file first, then the others
  <pre>    outTK11-locale.csv
     outTK11-commadelim.csv
     outTK11-quotes.csv</pre>
