@@ -4,8 +4,11 @@
 >Your warranty is now void. I am not responsible for bricked devices, dead radios, thermonuclear war. YOU are choosing to make these modifications, and if you point the finger at me for messing up your device, I will laugh at you. ☠️❗⚠️**
 >
 ##
-### LICENSE: Please refer to LICENSE.md
-### GNU General Public License v3: https://www.gnu.org/licenses/gpl-3.0.en.html
+### This conversion script is only useful until there's official support for TK11 from CHIRP
+### 31 May 2025
+##
+> LICENSE: Please refer to LICENSE.md .
+> GNU General Public License v3: https://www.gnu.org/licenses/gpl-3.0.en.html
 ##
 > [!NOTE]  
 > This script is written for converting CHIRP csv export files to Quansheng TK11 import csv files for Quansheng's CPS version 2.6 and above. CAUTION IS ADVISED. CHECK AND RE-CHECK YOUR FREQUENCIES AFTER CONVERSION AND ALL ADDITIONAL SETTINGS
