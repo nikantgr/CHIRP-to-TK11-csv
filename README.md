@@ -12,9 +12,9 @@
 ##
 ### USAGE
 - The script produces three output files to try to overcome locale and regional problems in CSV files
-    outTK11-locale.csv
+ <pre>   outTK11-locale.csv
     outTK11-commadelim.csv
-    outTK11-quotes.csv
+    outTK11-quotes.csv</pre>
   Try the "outTK11-commadelim.csv" file first, then the others
 
 - Python needed to be installed in the system
