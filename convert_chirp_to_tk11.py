@@ -2,7 +2,7 @@
 # https://www.youtube.com/@NikosKantarakias
 # https://www.qrz.com/db/SY1EBE
 #
-# version 0.0.3
+# version 0.0.5
 #
 # This code are licensed under the GNU General Public License v3 (GPLv3).
 # 
@@ -19,8 +19,10 @@
 #
 # ---------------------------------------------------------------------------------
 
+
 import csv
 import os
+import locale
 
 # Define input and output files
 input_file = "inCHIRP.csv"
@@ -217,4 +219,88 @@ with open(output_file, 'w', newline='') as csvfile:
         else:
             writer.writerow(row)
 
-print(f"Conversion complete. Output written to {output_file}.")
+# Define fields to be quoted
+quoted_fields = ["RX Freq[MHZ]", "TX Freq[MHZ]", "QT Encode1", "QT Decode", "MSW", "Band"]
+
+# Create a quoted copy of the output file (outTK11-quotes.csv)
+quoted_output_file = "outTK11-quotes.csv"
+with open(output_file, newline='') as infile, open(quoted_output_file, 'w', newline='') as outfile:
+    reader = csv.DictReader(infile)
+    # Write unquoted header
+    outfile.write(','.join(tk11_header) + '\n')
+    # Write data rows with selective quoting
+    for row in reader:
+        modified_row = []
+        for field in tk11_header:
+            value = row[field]
+            # Escape commas and quotes in the value
+            if ',' in value or '"' in value:
+                value = f'"{value.replace('"', '""')}"'
+            elif field in quoted_fields:
+                value = f'"{value}"'
+            modified_row.append(value)
+        outfile.write(','.join(modified_row) + '\n')
+
+# Create a quoted copy with comma decimal separators (outTK11-commadelim.csv)
+comma_output_file = "outTK11-commadelim.csv"
+comma_fields = ["RX Freq[MHZ]", "TX Freq[MHZ]", "QT Encode1", "QT Decode", "MSW", "Band"]
+with open(output_file, newline='') as infile, open(comma_output_file, 'w', newline='') as outfile:
+    reader = csv.DictReader(infile)
+    # Write unquoted header
+    outfile.write(','.join(tk11_header) + '\n')
+    # Write data rows with selective quoting and comma decimals
+    for row in reader:
+        modified_row = []
+        for field in tk11_header:
+            value = row[field]
+            if field in quoted_fields:
+                if field in comma_fields and value and value != "Null":
+                    value = value.replace('.', ',')
+                # Escape commas and quotes in the value
+                if ',' in value or '"' in value:
+                    value = f'"{value.replace('"', '""')}"'
+                else:
+                    value = f'"{value}"'
+            elif ',' in value or '"' in value:
+                value = f'"{value.replace('"', '""')}"'
+            modified_row.append(value)
+        outfile.write(','.join(modified_row) + '\n')
+
+# Create a quoted copy with locale-specific decimal separators (outTK11-locale.csv)
+locale_output_file = "outTK11-locale.csv"
+try:
+    # Set system default locale
+    locale.setlocale(locale.LC_ALL, '')
+except locale.Error:
+    print("Warning: Failed to set system locale. Falling back to 'en_US.UTF-8'.")
+    try:
+        locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+    except locale.Error:
+        print("Warning: Failed to set 'en_US.UTF-8'. Using default format (period decimals).")
+
+decimal_point = locale.localeconv().get('decimal_point', '.')
+locale_numeric_fields = ["RX Freq[MHZ]", "TX Freq[MHZ]", "QT Encode1", "QT Decode"]
+with open(output_file, newline='') as infile, open(locale_output_file, 'w', newline='') as outfile:
+    reader = csv.DictReader(infile)
+    # Write unquoted header
+    outfile.write(','.join(tk11_header) + '\n')
+    # Write data rows with selective quoting and locale-specific decimals
+    for row in reader:
+        modified_row = []
+        for field in tk11_header:
+            value = row[field]
+            if field in quoted_fields:
+                if field in locale_numeric_fields and value and value != "Null":
+                    value = value.replace('.', decimal_point)
+                # Escape commas and quotes in the value
+                if ',' in value or '"' in value:
+                    value = f'"{value.replace('"', '""')}"'
+                else:
+                    value = f'"{value}"'
+            elif ',' in value or '"' in value:
+                value = f'"{value.replace('"', '""')}"'
+            modified_row.append(value)
+        outfile.write(','.join(modified_row) + '\n')
+
+print(f"Conversion complete. Outputs written to {output_file}, {quoted_output_file}, {comma_output_file}, and {locale_output_file}.")
+os.remove(output_file)
