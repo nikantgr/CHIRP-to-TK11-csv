@@ -2,7 +2,7 @@
 # https://www.youtube.com/@NikosKantarakias
 # https://www.qrz.com/db/SY1EBE
 #
-# version 0.0.5
+# version 0.0.6
 #
 # This code are licensed under the GNU General Public License v3 (GPLv3).
 # 
@@ -120,7 +120,7 @@ location_rows = {}  # Map Location to row
 min_location = float('inf')
 max_location = -1
 fieldnames = None
-with open(input_file, newline='') as csvfile:
+with open(input_file, newline='', encoding='utf-8') as csvfile:
     reader = csv.DictReader(csvfile)
     fieldnames = reader.fieldnames
     for row in reader:
@@ -210,7 +210,7 @@ for loc in range(min_location, max_location + 1):
     row_number += 1
 
 # Write to TK11.csv
-with open(output_file, 'w', newline='') as csvfile:
+with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
     writer = csv.DictWriter(csvfile, fieldnames=tk11_header)
     writer.writeheader()
     for row in output_rows:
@@ -224,7 +224,7 @@ quoted_fields = ["RX Freq[MHZ]", "TX Freq[MHZ]", "QT Encode1", "QT Decode", "MSW
 
 # Create a quoted copy of the output file (outTK11-quotes.csv)
 quoted_output_file = "outTK11-quotes.csv"
-with open(output_file, newline='') as infile, open(quoted_output_file, 'w', newline='') as outfile:
+with open(output_file, newline='', encoding='utf-8') as infile, open(quoted_output_file, 'w', newline='', encoding='utf-8') as outfile:
     reader = csv.DictReader(infile)
     # Write unquoted header
     outfile.write(','.join(tk11_header) + '\n')
@@ -233,18 +233,20 @@ with open(output_file, newline='') as infile, open(quoted_output_file, 'w', newl
         modified_row = []
         for field in tk11_header:
             value = row[field]
+            # Ensure value is a string
+            value = '' if value is None else str(value)
             # Escape commas and quotes in the value
             if ',' in value or '"' in value:
-                value = f'"{value.replace('"', '""')}"'
+                value = '"' + value.replace('"', '""') + '"'
             elif field in quoted_fields:
-                value = f'"{value}"'
+                value = '"' + value + '"'
             modified_row.append(value)
         outfile.write(','.join(modified_row) + '\n')
 
 # Create a quoted copy with comma decimal separators (outTK11-commadelim.csv)
 comma_output_file = "outTK11-commadelim.csv"
 comma_fields = ["RX Freq[MHZ]", "TX Freq[MHZ]", "QT Encode1", "QT Decode", "MSW", "Band"]
-with open(output_file, newline='') as infile, open(comma_output_file, 'w', newline='') as outfile:
+with open(output_file, newline='', encoding='utf-8') as infile, open(comma_output_file, 'w', newline='', encoding='utf-8') as outfile:
     reader = csv.DictReader(infile)
     # Write unquoted header
     outfile.write(','.join(tk11_header) + '\n')
@@ -253,16 +255,18 @@ with open(output_file, newline='') as infile, open(comma_output_file, 'w', newli
         modified_row = []
         for field in tk11_header:
             value = row[field]
+            # Ensure value is a string
+            value = '' if value is None else str(value)
             if field in quoted_fields:
                 if field in comma_fields and value and value != "Null":
                     value = value.replace('.', ',')
                 # Escape commas and quotes in the value
                 if ',' in value or '"' in value:
-                    value = f'"{value.replace('"', '""')}"'
+                    value = '"' + value.replace('"', '""') + '"'
                 else:
-                    value = f'"{value}"'
+                    value = '"' + value + '"'
             elif ',' in value or '"' in value:
-                value = f'"{value.replace('"', '""')}"'
+                value = '"' + value.replace('"', '""') + '"'
             modified_row.append(value)
         outfile.write(','.join(modified_row) + '\n')
 
@@ -280,7 +284,7 @@ except locale.Error:
 
 decimal_point = locale.localeconv().get('decimal_point', '.')
 locale_numeric_fields = ["RX Freq[MHZ]", "TX Freq[MHZ]", "QT Encode1", "QT Decode"]
-with open(output_file, newline='') as infile, open(locale_output_file, 'w', newline='') as outfile:
+with open(output_file, newline='', encoding='utf-8') as infile, open(locale_output_file, 'w', newline='', encoding='utf-8') as outfile:
     reader = csv.DictReader(infile)
     # Write unquoted header
     outfile.write(','.join(tk11_header) + '\n')
@@ -289,18 +293,20 @@ with open(output_file, newline='') as infile, open(locale_output_file, 'w', newl
         modified_row = []
         for field in tk11_header:
             value = row[field]
+            # Ensure value is a string
+            value = '' if value is None else str(value)
             if field in quoted_fields:
                 if field in locale_numeric_fields and value and value != "Null":
                     value = value.replace('.', decimal_point)
                 # Escape commas and quotes in the value
                 if ',' in value or '"' in value:
-                    value = f'"{value.replace('"', '""')}"'
+                    value = '"' + value.replace('"', '""') + '"'
                 else:
-                    value = f'"{value}"'
+                    value = '"' + value + '"'
             elif ',' in value or '"' in value:
-                value = f'"{value.replace('"', '""')}"'
+                value = '"' + value.replace('"', '""') + '"'
             modified_row.append(value)
         outfile.write(','.join(modified_row) + '\n')
 
-print(f"Conversion complete. Outputs written to {output_file}, {quoted_output_file}, {comma_output_file}, and {locale_output_file}.")
+print(f"Conversion complete. Outputs written to {quoted_output_file}, {comma_output_file}, and {locale_output_file}.")
 os.remove(output_file)
