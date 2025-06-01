@@ -7,7 +7,7 @@
 ### This conversion script is only useful until there's official support for TK11 from CHIRP
 ### 31 May 2025
 ##
-# [🗲 EXPERIMENTAL: CONVERT ONLINE 🗲](https://www.white-tree.net/temp/tk11/convert_chirp_to_tk11.php)
+# [🗲 EXPERIMENTAL: CONVERT ONLINE 🗲]
 ##
 ### 🟢 Want to contribute to the channel? You can support me with a donation https://www.white-tree.net/donate 🙏
 ##
