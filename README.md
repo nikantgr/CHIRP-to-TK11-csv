@@ -7,6 +7,12 @@
 ### This conversion script is only useful until there's official support for TK11 from CHIRP
 ### 31 May 2025
 ##
+### 🟢 Want to contribute to the channel? You can support me with a donation https://www.white-tree.net/donate 🙏
+##
+### video about the script https://www.youtube.com/watch?v=EqeiyNcYDOQ
+##
+### follow my channel https://www.youtube.com/c/NikosKantarakias?sub_confirmation=1
+##
 > LICENSE: Please refer to LICENSE.md .
 > GNU General Public License v3: https://www.gnu.org/licenses/gpl-3.0.en.html
 ##
